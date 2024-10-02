@@ -6,11 +6,10 @@ const User = require("../../models/User");
 const register = async (req, res) => {
   const { userName, email, password } = req.body;
 
-
   try {
-
-    const checkUser = await User.findOne({email})
-    if(checkUser) return res.json({success: false, message: "Email already exists"})
+    const checkUser = await User.findOne({ email });
+    if (checkUser)
+      return res.json({ success: false, message: "Email already exists" });
 
     const hashPassword = await bcrypt.hash(password, 12);
     const newUser = new User({
@@ -25,7 +24,6 @@ const register = async (req, res) => {
       message: "Registration successful",
     });
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: "Error registering",
@@ -38,31 +36,45 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const checkUser = await User.findOne({email})
-    if(!checkUser) return res.json({success: false, message: "User doen't exist. Please register"})
+    const checkUser = await User.findOne({ email });
+    if (!checkUser)
+      return res.json({
+        success: false,
+        message: "User doen't exist. Please register",
+      });
 
-    const checkPasswordMatch = await bcrypt.compare(password, checkUser.password);
-    if(!checkPasswordMatch) return res.json({
-      success: false,
-      message: "Invalid password"
-    })
+    const checkPasswordMatch = await bcrypt.compare(
+      password,
+      checkUser.password
+    );
+    if (!checkPasswordMatch)
+      return res.json({
+        success: false,
+        message: "Invalid password",
+      });
 
-    const token = jwt.sign({
-      id: checkUser._id, role: checkUser.role, email: checkUser.email
-    }, 'CLIENT_SECRET_KEY', {expiresIn: '60m'})
+    const token = jwt.sign(
+      {
+        id: checkUser._id,
+        role: checkUser.role,
+        email: checkUser.email,
+        userName: checkUser.userName,
+      },
+      "CLIENT_SECRET_KEY",
+      { expiresIn: "60m" }
+    );
 
-    res.cookie('token', token, {httpOnly: true, secure: false}).json({
+    res.cookie("token", token, { httpOnly: true, secure: false }).json({
       success: true,
       message: "LoggedIn Successful",
-      user:{
+      user: {
         email: checkUser.email,
         role: checkUser.role,
-        id: checkUser._id
-      }
-    })
-
+        id: checkUser._id,
+        userName: checkUser.userName,
+      },
+    });
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: "Error registering",
@@ -72,31 +84,31 @@ const login = async (req, res) => {
 
 // logout
 const logout = async (req, res) => {
-  res.clearCookie('token').json({
+  res.clearCookie("token").json({
     success: true,
-    message: 'Logged out successfully'
-  })
-}
+    message: "Logged out successfully",
+  });
+};
 
 // middleware
-const authMiddleware = async(req, res, next) =>{
+const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token;
-  if(!token) return res.status(401).json({
-    success: false,
-    message : 'Unauthorized user!'
-  })
+  if (!token)
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized user!",
+    });
 
   try {
-    const decoded = jwt.verify(token, 'CLIENT_SECRET_KEY');
+    const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
     req.user = decoded;
-    next()
+    next();
   } catch (error) {
     res.status(401).json({
       success: false,
       message: "Unauthorized user",
     });
   }
-}
+};
 
-
-module.exports = { register, login, logout, authMiddleware};
+module.exports = { register, login, logout, authMiddleware };

@@ -8,6 +8,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 const adminProductsRouter = require('./routes/admin/products-routes')
 
+const shopProductsRouter = require("./routes/shop/products-routes")
+const shopCartRouter = require("./routes/shop/cart-routes")
 
 // Mongo DB connection
 mongoose.connect(process.env.MongoURL)
@@ -36,6 +38,9 @@ app.use(cookieParser())
 app.use(express.json())
 app.use("/api/auth", authRouter)
 app.use('/api/admin/products', adminProductsRouter)
+
+app.use('/api/shop/products', shopProductsRouter)
+app.use("/api/shop/cart", shopCartRouter)
 
 
 app.listen(PORT, ()=> console.log(`server is running on port ${PORT}`))
