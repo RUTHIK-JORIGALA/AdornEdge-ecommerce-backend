@@ -10,6 +10,7 @@ const adminProductsRouter = require('./routes/admin/products-routes')
 
 const shopProductsRouter = require("./routes/shop/products-routes")
 const shopCartRouter = require("./routes/shop/cart-routes")
+const shopAddressRouter = require("./routes/shop/address-routes")
 
 // Mongo DB connection
 mongoose.connect(process.env.MongoURL)
@@ -41,6 +42,7 @@ app.use('/api/admin/products', adminProductsRouter)
 
 app.use('/api/shop/products', shopProductsRouter)
 app.use("/api/shop/cart", shopCartRouter)
+app.use("/api/shop/address", shopAddressRouter)
 
 
 app.listen(PORT, ()=> console.log(`server is running on port ${PORT}`))
